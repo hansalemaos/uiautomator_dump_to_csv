@@ -68,7 +68,7 @@ typedef struct element_data
     std::string resource_id;
     std::string clazz;
     std::string content_desc;
-    std::string naf;
+
     int aa_center_x;
     int aa_center_y;
     int aa_area;
@@ -91,6 +91,7 @@ typedef struct element_data
     int password;
     int scrollable;
     int selected;
+    int naf;
 
 } el_data;
 
@@ -220,11 +221,8 @@ void static parse_results(const std::string_view s, element_data &e)
         while (it != nodes_sv_end)
         {
             indexofstring = r.find(*it);
-            if ((indexofstring == 0) && (*it == sv_NAF))
-            {
-                e.naf = r.substr(it->size(), r.size() - it->size() - 1);
-            }
-            else if ((indexofstring == 0) && (*it == sv_bounds))
+
+            if ((indexofstring == 0) && (*it == sv_bounds))
             {
                 auto rsubs{r.substr(it->size(), r.size() - it->size() - 1)};
                 auto rsubssplit = rsubs | std::views::split('"');
@@ -268,7 +266,11 @@ void static parse_results(const std::string_view s, element_data &e)
             }
             else if ((indexofstring == 0) && (*it == sv_content_desc))
             {
-                e.content_desc = r.substr(it->size(), r.size() - it->size() - 1);
+                e.content_desc = r.substr(it->size(), r.size() - it->size());
+                if (e.text.back() == '"')
+                {
+                    e.text.pop_back();
+                }
             }
             else if ((indexofstring == 0) && (*it == sv_enabled))
             {
@@ -312,7 +314,15 @@ void static parse_results(const std::string_view s, element_data &e)
             }
             else if ((indexofstring == 0) && (*it == sv_text))
             {
-                e.text = r.substr(it->size(), r.size() - it->size() - 1);
+                e.text = r.substr(it->size(), r.size() - it->size());
+                if (e.text.back() == '"')
+                {
+                    e.text.pop_back();
+                }
+            }
+            else if ((indexofstring == 0) && (*it == sv_NAF))
+            {
+                e.naf = return_bool_as_int(r.substr(it->size(), r.size() - it->size() - 1));
             }
             it++;
         }
@@ -441,9 +451,7 @@ std::string dump_struct_vector_as_csv(std::vector<element_data> &v)
         outputstring.append(std::to_string(it->selected));
         outputstring.append(delim_csv);
 
-        outputstring.append(it->naf);
-        outputstring.append(delim_csv);
-
+        outputstring.append(std::to_string(it->naf));
         outputstring += '"';
         outputstring += '\n';
 
