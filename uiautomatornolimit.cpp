@@ -267,9 +267,9 @@ void static parse_results(const std::string_view s, element_data &e)
             else if ((indexofstring == 0) && (*it == sv_content_desc))
             {
                 e.content_desc = r.substr(it->size(), r.size() - it->size());
-                if (e.text.back() == '"')
+                if (e.content_desc.back() == '"')
                 {
-                    e.text.pop_back();
+                    e.content_desc.pop_back();
                 }
             }
             else if ((indexofstring == 0) && (*it == sv_enabled))
